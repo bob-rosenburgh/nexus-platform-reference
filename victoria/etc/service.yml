@@ -1,0 +1,91 @@
+---
+server:
+  type: default
+  applicationContextPath: /
+
+  applicationConnectors:
+    - type: http
+      port: 8090
+
+  adminConnectors:
+    - type: http
+      port: 8091
+
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: "${SERVICE_LOGDIR:-log}/request.log"
+        archivedLogFilenamePattern: "${SERVICE_LOGDIR:-log}/request-%d.log.gz"
+
+logging:
+  level: INFO
+
+  loggers:
+    com.sonatype.iq.victoria: INFO
+    org.apache.shiro.dropwizard: DEBUG
+    org.owasp.dependencycheck: WARN
+    org.hibernate: WARN
+    liquibase: WARN
+
+  appenders:
+    - type: console
+      threshold: ALL
+      logFormat: "%d{'yyyy-MM-dd HH:mm:ss,SSSZ'} %-5level [%thread] %X{user:-*SYSTEM} %logger - %msg%n"
+
+    - type: file
+      threshold: ALL
+      logFormat: "%d{'yyyy-MM-dd HH:mm:ss,SSSZ'} %-5level [%thread] %X{user:-*SYSTEM} %logger - %msg%n"
+      currentLogFilename: "${SERVICE_LOGDIR:-log}/service.log"
+      archivedLogFilenamePattern: "${SERVICE_LOGDIR:-log}/service-%d.log.gz"
+
+database:
+  migrate: yes
+  dataSource:
+    driverClass: org.h2.Driver
+    url: "jdbc:h2:${SERVICE_DBDIR:-./db}/victoria;AUTO_SERVER=TRUE"
+    user: victoria
+    password: victoria123
+
+#proxy:
+#  host: proxy
+#  port: 8080
+#  auth:
+#    username: proxy
+#    password: proxy123
+#  nonProxyHosts:
+#    - "*.example.com"
+
+iq-server:
+  # CHANGE-ME
+  baseUrl: http://iq-server:8070
+  authentication:
+    # CHANGE-ME
+    username: admin
+    password: admin
+
+  timeout: 30 seconds
+  connectionTimeout: 30 seconds
+  connectionRequestTimeout: 30 seconds
+  retries: 3
+  logging:
+    enabled: no
+
+ingest:
+  # CHANGE-ME
+  secret: secret123
+
+component-evaluation:
+  evaluators:
+    - type: dc
+      dataDirectory: "${SERVICE_DBDIR:-./db}"
+  maven-pom-resolver:
+    baseUrl: https://repo1.maven.org/maven2
+#    authentication:
+#      username: admin
+#      password: admin123
+    timeout: 60 seconds
+    connectionTimeout: 60 seconds
+    connectionRequestTimeout: 60 seconds
+    retries: 3
+    logging:
+      enabled: no
